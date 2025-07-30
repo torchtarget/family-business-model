@@ -28,6 +28,10 @@ class Config:
     age_partner_to_emeritus: int = 55
     age_econ_rights_end: int = 65
     eligible_parent_status: List[str] = field(default_factory=lambda: ['partner_active','partner_emeritus'])
+    # Initial population sizes
+    initial_active_partners: int = 30
+    initial_emeritus_partners: int = 30
+    initial_trainees: int = 10
 
 @dataclass
 class Person:
@@ -78,9 +82,9 @@ class Simulation:
                     pass
                 self.people[self.next_id] = p
                 self.next_id += 1
-        create_many(30,'partner_active',35,55)
-        create_many(30,'partner_emeritus',56,85)
-        create_many(10,'trainee',27,32)
+        create_many(self.cfg.initial_active_partners,'partner_active',35,55)
+        create_many(self.cfg.initial_emeritus_partners,'partner_emeritus',56,85)
+        create_many(self.cfg.initial_trainees,'trainee',27,32)
 
     def _add_person_from_row(self,row):
         # Basic type validation for key fields

@@ -33,5 +33,6 @@ Parameters exposed in the sidebar correspond to fields in `simulation.Config`:
 - `age_partner_to_emeritus` – age at which partners become emeritus.
 - `age_econ_rights_end` – age when economic rights expire.
 - `eligible_parent_status` – partner statuses considered when evaluating invitation eligibility.
+- `initial_active_partners`, `initial_emeritus_partners`, and `initial_trainees` – numbers of each group present at the start of the simulation.
 
-Tweak these values in the sidebar and rerun to explore different scenarios.
+Tweak these values in the sidebar (or by creating a `Config` manually) and rerun to explore different scenarios.
