@@ -42,10 +42,9 @@ class Person:
     econ_rights_end_year: Optional[int] = None
     sex: str = 'F'
 
-    @property
-    def age(self):
-        # age is computed externally per year when needed
-        raise AttributeError('age computed externally')
+    def age(self, current_year: int) -> int:
+        """Return age in the given year."""
+        return current_year - self.birth_year
 
 class Simulation:
     def __init__(self, cfg: Config, initial_people: pd.DataFrame | None = None):
@@ -107,15 +106,11 @@ class Simulation:
     def _tick(self):
         year = self.year
         cfg = self.cfg
-        # Helper lambdas
-        def get_age(p):
-            return year - p.birth_year
-
         # 1. Death & rights end
         for p in list(self.people.values()):
             if p.status == 'deceased':
                 continue
-            age = get_age(p)
+            age = p.age(year)
             if p.death_year is None:
                 # draw death year once
                 exp_death = int(self.rng.normal(cfg.mortality_mean, cfg.mortality_sd))
@@ -135,8 +130,8 @@ class Simulation:
         # 2. Births
         parents = [p for p in self.people.values()
                    if p.status in ['partner_active','partner_emeritus'] and
-                      (year - p.birth_year) >= cfg.fertility_age_start and
-                      (year - p.birth_year) <= cfg.fertility_age_end]
+                      p.age(year) >= cfg.fertility_age_start and
+                      p.age(year) <= cfg.fertility_age_end]
         for parent in parents:
             # probability of 1 birth in a given year from mean fertility spread across window
             years_window = cfg.fertility_age_end - cfg.fertility_age_start + 1
@@ -146,7 +141,7 @@ class Simulation:
 
         # 3. Invitations at 26
         for p in self.people.values():
-            if p.status == 'child' and get_age(p) == 26:
+            if p.status == 'child' and p.age(year) == 26:
                 if self._is_parent_eligible(p):
                     if self.rng.random() < cfg.invite_prob:
                         p.status = 'trainee'
@@ -158,7 +153,7 @@ class Simulation:
         # 4. Promotion 32–35
         for p in self.people.values():
             if p.status == 'trainee':
-                age = get_age(p)
+                age = p.age(year)
                 if cfg.probation_min <= age - 26 <= cfg.probation_max:
                     # decide once at first eligible year
                     if self.rng.random() < cfg.promotion_prob:
