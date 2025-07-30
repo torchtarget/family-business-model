@@ -83,17 +83,25 @@ class Simulation:
         create_many(10,'trainee',27,32)
 
     def _add_person_from_row(self,row):
+        # Basic type validation for key fields
+        if pd.isna(row.birth_year) or not isinstance(row.birth_year, (int, float)):
+            raise ValueError(f"Invalid birth_year: {row.birth_year}")
+        if pd.isna(row.generation) or not isinstance(row.generation, (int, float)):
+            raise ValueError(f"Invalid generation: {row.generation}")
+        if pd.isna(row.status) or not isinstance(row.status, str):
+            raise ValueError(f"Invalid status: {row.status}")
+
         p = Person(
             id=self.next_id,
             birth_year=int(row.birth_year),
             generation=int(row.generation),
             status=row.status,
-            parent_ids=row.parent_ids or [],
-            death_year=row.death_year if not np.isnan(row.death_year) else None,
-            partner_since=row.partner_since if not np.isnan(row.partner_since) else None,
-            emeritus_since=row.emeritus_since if not np.isnan(row.emeritus_since) else None,
-            econ_rights_end_year=row.econ_rights_end_year if not np.isnan(row.econ_rights_end_year) else None,
-            sex=row.sex
+            parent_ids=row.parent_ids if isinstance(row.parent_ids, list) else [],
+            death_year=int(row.death_year) if pd.notna(row.death_year) else None,
+            partner_since=int(row.partner_since) if pd.notna(row.partner_since) else None,
+            emeritus_since=int(row.emeritus_since) if pd.notna(row.emeritus_since) else None,
+            econ_rights_end_year=int(row.econ_rights_end_year) if pd.notna(row.econ_rights_end_year) else None,
+            sex=str(row.sex) if pd.notna(row.sex) else 'F'
         )
         self.people[self.next_id] = p
         self.next_id += 1
