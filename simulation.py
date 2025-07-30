@@ -5,7 +5,7 @@ import pandas as pd
 from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Literal, Set
 
-Status = Literal['child','candidate','trainee','partner_active','partner_emeritus','washout','deceased']
+Status = Literal['child','trainee','partner_active','partner_emeritus','washout','deceased']
 
 @dataclass
 class Config:
